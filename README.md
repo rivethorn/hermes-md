@@ -50,3 +50,8 @@ table = "posts"
 ### Environment Variables
 
 Environment variables (`SUPABASE_URL`, `SUPABASE_SERVICE_KEY`, `SUPABASE_BUCKET`, `SUPABASE_TABLE`) are honored as a fallback if no config file is found.
+
+### To-do
+
+- Make sure of Windows support
+- Add GUI
