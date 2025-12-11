@@ -353,10 +353,26 @@ fn candidate_config_paths(cli_path: Option<&str>) -> Vec<PathBuf> {
         paths.push(cwd.join("config.toml"));
     }
 
-    if let Ok(xdg) = std::env::var("XDG_CONFIG_HOME") {
-        paths.push(PathBuf::from(xdg).join("supamarker/config.toml"));
-    } else if let Ok(home) = std::env::var("HOME") {
-        paths.push(PathBuf::from(home).join(".config/supamarker/config.toml"));
+    #[cfg(unix)]
+    {
+        if let Ok(xdg) = std::env::var("XDG_CONFIG_HOME") {
+            paths.push(PathBuf::from(xdg).join("supamarker/config.toml"));
+        } else if let Ok(home) = std::env::var("HOME") {
+            paths.push(PathBuf::from(home).join(".config/supamarker/config.toml"));
+        }
+    }
+
+    #[cfg(windows)]
+    {
+        // On Windows, prefer APPDATA (roaming) or LOCALAPPDATA (local)
+        if let Ok(appdata) = std::env::var("APPDATA") {
+            paths.push(PathBuf::from(appdata).join("supamarker/config.toml"));
+        } else if let Ok(localappdata) = std::env::var("LOCALAPPDATA") {
+            paths.push(PathBuf::from(localappdata).join("supamarker/config.toml"));
+        } else if let Ok(userprofile) = std::env::var("USERPROFILE") {
+            // Fallback to USERPROFILE\.config\supamarker\config.toml
+            paths.push(PathBuf::from(userprofile).join(".config/supamarker/config.toml"));
+        }
     }
 
     paths
@@ -465,17 +481,48 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 }
 
 fn default_config_path() -> Result<PathBuf> {
-    if let Ok(xdg) = std::env::var("XDG_CONFIG_HOME") {
-        return Ok(PathBuf::from(xdg).join("supamarker/config.toml"));
+    #[cfg(unix)]
+    {
+        if let Ok(xdg) = std::env::var("XDG_CONFIG_HOME") {
+            return Ok(PathBuf::from(xdg).join("supamarker/config.toml"));
+        }
+
+        if let Ok(home) = std::env::var("HOME") {
+            return Ok(PathBuf::from(home).join(".config/supamarker/config.toml"));
+        }
+
+        return Err(anyhow!(
+            "HOME not set; cannot determine default config path"
+        ));
     }
 
-    if let Ok(home) = std::env::var("HOME") {
-        return Ok(PathBuf::from(home).join(".config/supamarker/config.toml"));
+    #[cfg(windows)]
+    {
+        // On Windows, prefer APPDATA (roaming) or LOCALAPPDATA (local)
+        if let Ok(appdata) = std::env::var("APPDATA") {
+            return Ok(PathBuf::from(appdata).join("supamarker/config.toml"));
+        }
+
+        if let Ok(localappdata) = std::env::var("LOCALAPPDATA") {
+            return Ok(PathBuf::from(localappdata).join("supamarker/config.toml"));
+        }
+
+        if let Ok(userprofile) = std::env::var("USERPROFILE") {
+            // Fallback to USERPROFILE\.config\supamarker\config.toml
+            return Ok(PathBuf::from(userprofile).join(".config/supamarker/config.toml"));
+        }
+
+        return Err(anyhow!(
+            "APPDATA, LOCALAPPDATA, or USERPROFILE not set; cannot determine default config path"
+        ));
     }
 
-    Err(anyhow!(
-        "HOME not set; cannot determine default config path"
-    ))
+    #[cfg(not(any(unix, windows)))]
+    {
+        Err(anyhow!(
+            "Unsupported platform; cannot determine default config path"
+        ))
+    }
 }
 
 fn gen_config() -> Result<PathBuf> {

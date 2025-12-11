@@ -2,7 +2,6 @@
 
 ![Crates.io Version](https://img.shields.io/crates/v/supamarker)
 
-
 A CLI tool for adding and removing Markdown files to and from a Supabase bucket. I use it for my blog site, you can use it for whatever.
 
 ## ⚠️ Warning
@@ -32,14 +31,19 @@ supamarker publish <path>         # upload file + metadata
 supamarker list                   # show slugs and where they are (bucket/table/both)
 supamarker delete <slug>          # delete file + row after confirmation
 supamarker delete <slug> --soft   # delete only DB row (keeps bucket file)
-supamarker gen-config             # write sample config to ~/.config/supamarker/config.toml
+supamarker gen-config             # write sample config to platform-specific config directory
 ```
 
 ## Configuration
 
 ### Config File (Preferred)
 
-Place `config.toml` in the current directory, or `~/.config/supamarker/config.toml`. Override the path with `--config /path/to/config.toml`.
+Place `config.toml` in the current directory, or in the platform-specific config directory:
+
+- **Unix/Linux**: `~/.config/supamarker/config.toml` (or `$XDG_CONFIG_HOME/supamarker/config.toml` if set)
+- **Windows**: `%APPDATA%\supamarker\config.toml` (or `%LOCALAPPDATA%\supamarker\config.toml`)
+
+Override the path with `--config /path/to/config.toml` (or `--config C:\path\to\config.toml` on Windows).
 
 Example `config.toml`:
 
@@ -56,5 +60,4 @@ Environment variables (`SUPABASE_URL`, `SUPABASE_SERVICE_KEY`, `SUPABASE_BUCKET`
 
 ### To-do
 
-- Make sure of Windows support
 - Add GUI
