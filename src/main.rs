@@ -16,7 +16,10 @@ use zenity::spinner::MultiSpinner;
 
 #[derive(Parser)]
 #[command(name = "supamarker")]
-#[command(about = "Publish markdown posts to Supabase (storage + posts table)")]
+#[command(
+    about = "Publish markdown posts to Supabase (storage + posts table)",
+    version
+)]
 struct Cli {
     /// Optional path to a config file (TOML). If set, this is used first.
     #[arg(long, global = true)]
