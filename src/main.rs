@@ -219,7 +219,7 @@ async fn publish(
         Path::new(path)
             .file_stem()
             .and_then(|s| s.to_str())
-            .map(|s| slugify(s))
+            .map(slugify)
             .unwrap_or_else(|| slugify(&fm.title))
     });
 
@@ -604,9 +604,9 @@ fn default_config_path() -> Result<PathBuf> {
             return Ok(PathBuf::from(home).join(".config/supamarker/config.toml"));
         }
 
-        return Err(anyhow!(
+        Err(anyhow!(
             "HOME not set; cannot determine default config path"
-        ));
+        ))
     }
 
     #[cfg(windows)]
@@ -665,7 +665,11 @@ table = "posts"
 }
 
 fn normalize_slug(input: &str) -> String {
-    input.trim_end_matches(".md").to_string()
+    Path::new(input)
+        .file_stem()
+        .and_then(|name| name.to_str())
+        .map(String::from)
+        .unwrap()
 }
 
 fn prompt_confirm(question: &str) -> Result<bool> {
@@ -842,7 +846,7 @@ async fn list_items(
         return Ok(());
     }
 
-    println!("{:<32}{}", "slug", "location");
+    println!("{:<32}location", "slug");
     for slug in all {
         let in_storage = storage_set.contains(&slug);
         let in_table = table_set.contains(&slug);
