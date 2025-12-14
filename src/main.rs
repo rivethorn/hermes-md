@@ -1,107 +1,53 @@
-#![cfg_attr(windows, windows_subsystem = "windows")]
-
 use std::{
     collections::HashSet,
     fs,
-    io::{self, IsTerminal, Write, stdin},
+    io::{self, Write},
     path::{Path, PathBuf},
 };
 
 use anyhow::{Context, Result, anyhow};
 use clap::{CommandFactory, Parser, Subcommand};
 use dotenvy::dotenv;
-use eframe::{App, Frame, egui};
 use reqwest::header::{ACCEPT, AUTHORIZATION, CONTENT_TYPE};
 use reqwest::multipart;
 use serde::Deserialize;
 use slug::slugify;
 use zenity::spinner::MultiSpinner;
 
-struct HermesGUI {
-    config_path: Option<String>,
-    status: String,
-    slug_input: String,
+#[derive(Parser)]
+#[command(name = "hermes")]
+#[command(
+    about = "Publish markdown posts to Supabase (storage + posts table)",
+    version
+)]
+struct Cli {
+    /// Optional path to a config file (TOML). If set, this is used first.
+    #[arg(long, global = true)]
+    config: Option<String>,
+    #[command(subcommand)]
+    cmd: Option<Commands>,
 }
 
-impl HermesGUI {
-    fn new(config_path: Option<String>) -> Self {
-        Self {
-            config_path,
-            status: "Ready".into(),
-            slug_input: String::new(),
-        }
-    }
+#[derive(Subcommand)]
+enum Commands {
+    /// Publish a local markdown file
+    Publish { path: String },
+    /// Delete a post by slug
+    Delete {
+        slug: String,
+        /// Remove only the database row; keep the file in the bucket
+        #[arg(long)]
+        soft: bool,
+    },
+    /// List slugs and where they exist
+    List,
+    /// Generate a sample config at the default path
+    GenConfig,
 }
 
-impl App for HermesGUI {
-    fn update(&mut self, ctx: &egui::Context, _frame: &mut Frame) {
-        egui::CentralPanel::default().show(ctx, |ui| {
-            ui.heading("Hermes-MD");
-
-            ui.separator();
-
-            ui.horizontal(|ui| {
-                ui.label("Slug:");
-                ui.text_edit_singleline(&mut self.slug_input);
-            });
-
-            if ui.button("Delete Post").clicked() {
-                self.status = "Deleting...".into();
-
-                let slug = self.slug_input.clone();
-                let cfg = self.config_path.clone();
-
-                tokio::spawn(async move {
-                    if let Ok(cfg) = load_config(cfg.as_deref()) {
-                        let _ = delete_post(
-                            &cfg.supabase_url,
-                            &cfg.service_key,
-                            &cfg.bucket,
-                            &slug,
-                            &cfg.table,
-                            false,
-                        )
-                        .await;
-                    }
-                });
-            }
-
-            if ui.button("List Posts").clicked() {
-                self.status = "Listing… see terminal output".into();
-                let cfg = self.config_path.clone();
-
-                tokio::spawn(async move {
-                    if let Ok(cfg) = load_config(cfg.as_deref()) {
-                        let _ = list_items(
-                            &cfg.supabase_url,
-                            &cfg.service_key,
-                            &cfg.bucket,
-                            &cfg.table,
-                        )
-                        .await;
-                    }
-                });
-            }
-
-            ui.separator();
-            ui.label(format!("Status: {}", self.status));
-        });
-    }
-}
-
-async fn run_gui(config_path: Option<String>) -> Result<()> {
-    let options = eframe::NativeOptions::default();
-
-    let _ = eframe::run_native(
-        "Hermes-MD",
-        options,
-        Box::new(move |_cc| Ok(Box::new(HermesGUI::new(config_path.clone())))),
-    );
-
-    Ok(())
-}
-
-async fn run_cli() -> Result<()> {
+#[tokio::main]
+async fn main() -> Result<()> {
+    dotenv().ok();
     let args = Cli::parse();
 
     match args.cmd {
@@ -151,47 +97,6 @@ async fn run_cli() -> Result<()> {
     }
 
     Ok(())
-}
-
-#[derive(Parser)]
-#[command(name = "hermes")]
-#[command(
-    about = "Publish markdown posts to Supabase (storage + posts table)",
-    version
-)]
-struct Cli {
-    #[arg(long)]
-    gui: bool,
-    /// Optional path to a config file (TOML). If set, this is used first.
-    #[arg(long, global = true)]
-    config: Option<String>,
-    #[command(subcommand)]
-    cmd: Option<Commands>,
-}
-
-#[derive(Subcommand)]
-enum Commands {
-    /// Publish a local markdown file
-    Publish { path: String },
-    /// Delete a post by slug
-    Delete {
-        slug: String,
-        /// Remove only the database row; keep the file in the bucket
-        #[arg(long)]
-        soft: bool,
-    },
-    /// List slugs and where they exist
-    List,
-    /// Generate a sample config at the default path
-    GenConfig,
-}
-
-#[derive(Debug, Deserialize)]
-struct FrontMatter {
-    title: String,
-    summary: Option<String>,
-    tags: Option<Vec<String>>,
-    slug: Option<String>,
 }
 
 async fn publish(
@@ -448,6 +353,14 @@ async fn delete_post(
     Ok(())
 }
 
+#[derive(Debug, Deserialize)]
+struct FrontMatter {
+    title: String,
+    summary: Option<String>,
+    tags: Option<Vec<String>>,
+    slug: Option<String>,
+}
+
 /// Very small frontmatter parser: returns (Option<FrontMatter>, content_without_fm)
 fn parse_frontmatter(s: &str) -> Result<(Option<FrontMatter>, String)> {
     let s = s.trim_start();
@@ -572,25 +485,6 @@ fn load_config(cli_config: Option<&str>) -> Result<ResolvedConfig> {
         bucket,
         table,
     })
-}
-
-#[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    dotenv().ok();
-    let args = Cli::parse();
-
-    if args.gui {
-        run_gui(None).await?;
-        return Ok(());
-    }
-
-    if args.cmd.is_some() || stdin().is_terminal() {
-        run_cli().await?;
-        return Ok(());
-    }
-
-    run_gui(None).await?;
-    Ok(())
 }
 
 fn default_config_path() -> Result<PathBuf> {
