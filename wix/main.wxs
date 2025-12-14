@@ -60,7 +60,7 @@
 
     <Product
         Id='*'
-        Name='Hermes-MD'
+        Name='hermes-md'
         UpgradeCode='06FB64A3-F98C-47AB-88AD-58D745424AC3'
         Manufacturer='Hassan Qasemi'
         Language='1033'
@@ -83,11 +83,11 @@
             DowngradeErrorMessage='A newer version of [ProductName] is already installed. Setup will now exit.'/>
 
         <Media Id='1' Cabinet='media1.cab' EmbedCab='yes' DiskPrompt='CD-ROM #1'/>
-        <Property Id='DiskPrompt' Value='Hermes-MD Installation'/>
+        <Property Id='DiskPrompt' Value='hermes-md Installation'/>
 
         <Directory Id='TARGETDIR' Name='SourceDir'>
             <Directory Id='$(var.PlatformProgramFilesFolder)' Name='PFiles'>
-                <Directory Id='APPLICATIONFOLDER' Name='Hermes-MD'>
+                <Directory Id='APPLICATIONFOLDER' Name='hermes-md'>
                     
                     <!--
                       Enabling the license sidecar file in the installer is a four step process:
@@ -123,9 +123,9 @@
                         <Component Id='binary0' Guid='*'>
                             <File
                                 Id='exe0'
-                                Name='Hermes-MD.exe'
+                                Name='hermes-md.exe'
                                 DiskId='1'
-                                Source='$(var.CargoTargetBinDir)\Hermes-MD.exe'
+                                Source='$(var.CargoTargetBinDir)\hermes-md.exe'
                                 KeyPath='yes'/>
                         </Component>
                     </Directory>
