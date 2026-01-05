@@ -33,7 +33,7 @@ jobs:
 
       - name: Build binary
         run: |
-          bun build src/index.ts \
+          bun build src/hermes.ts \
             --compile \
             --minify \
             --sourcemap=none \
