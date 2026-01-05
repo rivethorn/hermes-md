@@ -3,6 +3,9 @@
   "module": "hermes.ts",
   "type": "module",
   "private": true,
+  "scripts": {
+    "build": "bun build src/hermes.ts --compile --outfile hermes"
+  },
   "devDependencies": {
     "@types/bun": "latest",
     "@types/js-yaml": "^4.0.9"
