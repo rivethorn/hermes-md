@@ -1,10 +1,23 @@
 {
   "name": "hermes",
+  "version": "0.2.0",
+  "description": "A CLI tool for adding and removing Markdown files to and from a Supabase bucket",
+  "bin": {
+    "hermes": "src/hermes.ts"
+  },
   "module": "src/hermes.ts",
   "type": "module",
   "private": true,
   "scripts": {
-    "build": "bun build src/hermes.ts --compile --outfile hermes"
+    "build": "bun build src/index.ts --compile --minify --outfile hermes"
+  },
+  "files": [
+    "src",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "bun": ">=1.0.0"
   },
   "devDependencies": {
     "@types/bun": "latest",
