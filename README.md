@@ -12,17 +12,23 @@ A CLI tool for adding and removing Markdown files to and from a Supabase bucket.
 ## Usage
 
 ```bash
-bun run hermes.ts publish <path>         # upload file + metadata
-bun run hermes.ts list                   # show slugs and where they are (bucket/table/both)
-bun run hermes.ts delete <slug>          # delete file + row after confirmation
-bun run hermes.ts delete <slug> --soft   # delete only DB row (keeps bucket file)
-bun run hermes.ts gen-config             # write sample config to where you are
+bun run src/hermes.ts publish <path>         # upload file + metadata
+bun run src/hermes.ts list                   # show slugs and where they are (bucket/table/both)
+bun run src/hermes.ts delete <slug>          # delete file + row after confirmation
+bun run src/hermes.ts delete <slug> --soft   # delete only DB row (keeps bucket file)
+bun run src/hermes.ts gen-config             # write sample config to where you are
 ```
 
 You can also compile it into a single executable:
 
 ```bash
-bun build hermes.ts --compile --outfile hermes
+bun run build
+```
+
+Or:
+
+```bash
+bun build src/hermes.ts --compile --outfile hermes
 ```
 
 Then you can move it to somewhere in PATH environment variable, for example:
