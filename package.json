@@ -7,7 +7,6 @@
   },
   "module": "src/hermes.ts",
   "type": "module",
-  "private": false,
   "scripts": {
     "build": "bun build src/index.ts --compile --minify --outfile hermes"
   },
