@@ -1,6 +1,6 @@
 {
   "name": "hermes",
-  "module": "hermes.ts",
+  "module": "src/hermes.ts",
   "type": "module",
   "private": true,
   "scripts": {
@@ -11,10 +11,10 @@
     "@types/js-yaml": "^4.0.9"
   },
   "peerDependencies": {
-    "typescript": "^5"
+    "typescript": "^5.9.3"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.87.1",
+    "@supabase/supabase-js": "^2.89.0",
     "commander": "^14.0.2",
     "dotenv": "^17.2.3",
     "gray-matter": "^4.0.3",
