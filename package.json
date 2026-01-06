@@ -1,5 +1,5 @@
 {
-  "name": "hermes",
+  "name": "hermes-md",
   "version": "0.1.0",
   "description": "A CLI tool for adding and removing Markdown files to and from a Supabase bucket",
   "bin": {
