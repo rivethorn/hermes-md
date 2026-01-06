@@ -9,19 +9,28 @@ A CLI tool for adding and removing Markdown files to and from a Supabase bucket.
 
 **Never publish your Service Role Key** — it WILL grant unlimited power over your Supabase project to anyone who has it.
 
-## Usage
+## Installation
+
+> Only Unix-based systems are supported.
+
+You can install from NPM:
 
 ```bash
-bun run src/hermes.ts publish <path>         # upload file + metadata
-bun run src/hermes.ts list                   # show slugs and where they are (bucket/table/both)
-bun run src/hermes.ts delete <slug>          # delete file + row after confirmation
-bun run src/hermes.ts delete <slug> --soft   # delete only DB row (keeps bucket file)
-bun run src/hermes.ts gen-config             # write sample config to where you are
+npm install -g hermes-md
+# or with your package manager of choice:
+bun install -g hermes-md
 ```
+
+You can also download the binary from the [releases](https://github.com/rivethorn/hermes-md/releases/latest).
+
+### Build from source
 
 You can also compile it into a single executable:
 
 ```bash
+https://github.com/rivethorn/hermes-md.git
+cd hermes-md
+bun install
 bun run build
 ```
 
@@ -35,6 +44,16 @@ Then you can move it to somewhere in PATH environment variable, for example:
 
 ```bash
 mv hermes ~/.bun/bin/hermes
+```
+
+## Usage
+
+```bash
+hermes publish <path>         # upload file + metadata
+hermes list                   # show slugs and where they are (bucket/table/both)
+hermes delete <slug>          # delete file + row after confirmation
+hermes delete <slug> --soft   # delete only DB row (keeps bucket file)
+hermes gen-config             # write sample config to where you are
 ```
 
 ## Configuration
